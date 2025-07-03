@@ -1,76 +1,116 @@
 <?php
 /**
- * My Account Dashboard
+ * Buggy Club Member Dashboard
  *
- * Shows the first intro screen on the account dashboard.
- *
- * This template can be overridden by copying it to yourtheme/woocommerce/myaccount/dashboard.php.
- *
- * HOWEVER, on occasion WooCommerce will need to update template files and you
- * (the theme developer) will need to copy the new files to your theme to
- * maintain compatibility. We try to do this as little as possible, but it does
- * happen. When this occurs the version of the template file will be bumped and
- * the readme will list any important changes.
- *
- * @see     https://woocommerce.com/document/template-structure/
- * @package WooCommerce\Templates
- * @version 4.4.0
+ * Tailwind-based layout with quick actions and badges.
+ * Template overrides WooCommerce myaccount/dashboard.php.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+    exit;
 }
 
-$allowed_html = array(
-	'a' => array(
-		'href' => array(),
-	),
-);
+$current_user = wp_get_current_user();
+
+$order_ids = wc_get_orders([
+    'customer_id' => $current_user->ID,
+    'return'      => 'ids',
+    'limit'       => -1,
+]);
+
+$numbers  = implode(', ', $order_ids);
+$shipping = array_filter([
+    get_user_meta( $current_user->ID, 'shipping_first_name', true ) . ' ' . get_user_meta( $current_user->ID, 'shipping_last_name', true ),
+    get_user_meta( $current_user->ID, 'shipping_address_1', true ),
+    get_user_meta( $current_user->ID, 'shipping_address_2', true ),
+    get_user_meta( $current_user->ID, 'shipping_city', true ),
+    get_user_meta( $current_user->ID, 'shipping_state', true ),
+    get_user_meta( $current_user->ID, 'shipping_postcode', true ),
+    get_user_meta( $current_user->ID, 'shipping_country', true ),
+]);
+$shipping_address = implode(', ', $shipping);
+
+$recent_posts = wp_get_recent_posts([
+    'numberposts' => 3,
+    'post_status' => 'publish',
+]);
+
+$mailto_help     = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode('Support Request') . '&body=' . rawurlencode("Order numbers: $numbers\nShipping address: $shipping_address");
+$mailto_callback = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode('Call Back Request') . '&body=' . rawurlencode("Please call me regarding orders: $numbers\nShipping address: $shipping_address");
+$mailto_warranty = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode('Warranty Claim') . '&body=' . rawurlencode("I would like to claim under warranty for orders: $numbers\nShipping address: $shipping_address");
 ?>
 
-<p>Welcome to the Buggy Club Dashboard, <?php echo esc_html( $current_user->display_name ); ?>!</p>
+<script src="https://cdn.tailwindcss.com"></script>
 
+<div class="tbc-dashboard bg-gray-50 font-sans">
+  <header class="bg-white shadow p-4 flex justify-between items-center">
+    <div class="flex items-center">
+      <img src="https://via.placeholder.com/40x40?text=tbco" alt="Logo" class="w-10 h-10 mr-2" />
+      <h1 class="text-xl font-semibold">My Buggy Club</h1>
+    </div>
+    <div class="flex items-center">
+      <span class="mr-4 text-gray-700">
+        <?php printf( esc_html__('Hi, %s!', 'woocommerce'), '<strong>' . esc_html( $current_user->display_name ) . '</strong>' ); ?>
+      </span>
+      <div class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+        <?php esc_html_e('Member', 'woocommerce'); ?>
+      </div>
+    </div>
+  </header>
 
-<p>
-	<?php
-	/* translators: 1: Orders URL 2: Address URL 3: Account URL. */
-	$dashboard_desc = __( 'From your account dashboard you can view your <a href="%1$s">recent orders</a>, manage your <a href="%2$s">billing address</a>, and <a href="%3$s">edit your password and account details</a>.', 'woocommerce' );
-	if ( wc_shipping_enabled() ) {
-		/* translators: 1: Orders URL 2: Addresses URL 3: Account URL. */
-		$dashboard_desc = __( 'From your account dashboard you can view your <a href="%1$s">recent orders</a>, manage your <a href="%2$s">shipping and billing addresses</a>, and <a href="%3$s">edit your password and account details</a>.', 'woocommerce' );
-	}
-	printf(
-		wp_kses( $dashboard_desc, $allowed_html ),
-		esc_url( wc_get_endpoint_url( 'orders' ) ),
-		esc_url( wc_get_endpoint_url( 'edit-address' ) ),
-		esc_url( wc_get_endpoint_url( 'edit-account' ) )
-	);
-	?>
-</p>
-    <?php do_action('tbc_render_dashboard_badges'); ?>
+  <main class="max-w-5xl mx-auto p-6">
+    <section class="mb-8">
+      <?php echo do_shortcode('[wc_user_badges_xp_bar]'); ?>
+    </section>
+
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <a href="<?php echo esc_url( wc_get_endpoint_url('orders') ); ?>" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">🛒</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('View Orders', 'woocommerce'); ?></div>
+      </a>
+      <a href="https://thetravelbuggycompany.co.uk/rewards" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">🎁</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('Redeem Rewards', 'woocommerce'); ?></div>
+      </a>
+      <a href="<?php echo esc_attr( $mailto_help ); ?>" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">✉️</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('Submit Ticket', 'woocommerce'); ?></div>
+      </a>
+      <a href="<?php echo esc_attr( $mailto_callback ); ?>" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">📞</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('Request Callback', 'woocommerce'); ?></div>
+      </a>
+      <a href="<?php echo esc_attr( $mailto_warranty ); ?>" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">🔧</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('Claim Warranty', 'woocommerce'); ?></div>
+      </a>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-lg font-semibold mb-4"><?php esc_html_e('Your Badges', 'woocommerce'); ?></h2>
+      <div class="flex space-x-4 overflow-x-auto pb-2">
+        <?php echo do_shortcode('[wc_user_badges]'); ?>
+      </div>
+    </section>
+
+    <?php if ( $recent_posts ) : ?>
+    <section class="mb-8">
+      <h2 class="text-lg font-semibold mb-4"><?php esc_html_e('Latest from our Blog', 'woocommerce'); ?></h2>
+      <ul class="space-y-4">
+        <?php foreach ( $recent_posts as $post ) : ?>
+          <li class="bg-white shadow rounded-lg p-4">
+            <a href="<?php echo esc_url( get_permalink( $post['ID'] ) ); ?>" class="text-blue-600 font-medium hover:underline"><?php echo esc_html( $post['post_title'] ); ?></a>
+            <p class="text-gray-600 text-sm mt-1"><?php echo esc_html( wp_trim_words( wp_strip_all_tags( $post['post_content'] ), 20, '...' ) ); ?></p>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </section>
+    <?php endif; ?>
+  </main>
+</div>
+
 <?php
-	/**
-	 * My Account dashboard.
-	 *
-	 * @since 2.6.0
-	 */
-	do_action( 'woocommerce_account_dashboard' );
-
-	/**
-	 * Deprecated woocommerce_before_my_account action.
-	 *
-	 * @deprecated 2.6.0
-	 */
-	do_action( 'woocommerce_before_my_account' );
-
-	/**
-	 * Deprecated woocommerce_after_my_account action.
-	 *
-	 * @deprecated 2.6.0
-	 */
-	do_action( 'woocommerce_after_my_account' );
-    
-
-
-
-/* Omit closing PHP tag at the end of PHP files to avoid "headers already sent" issues. */
+do_action('woocommerce_account_dashboard');
+do_action('woocommerce_before_my_account');
+do_action('woocommerce_after_my_account');
+// Omit closing PHP tag to avoid "headers already sent" issues.
