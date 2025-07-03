@@ -1,9 +1,8 @@
 <?php
 /**
- * Enhanced Member Dashboard
+ * Buggy Club Member Dashboard
  *
- * Custom account dashboard with badge rewards.
- *
+ * Tailwind-based layout with quick actions and badges.
  * Template overrides WooCommerce myaccount/dashboard.php.
  */
 
@@ -12,16 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $current_user = wp_get_current_user();
-$allowed_html = array( 'a' => array( 'href' => array() ) );
 
-$order_ids = wc_get_orders( [
+$order_ids = wc_get_orders([
     'customer_id' => $current_user->ID,
     'return'      => 'ids',
     'limit'       => -1,
-] );
+]);
 
-$numbers = implode( ', ', $order_ids );
-$shipping = array_filter( [
+$numbers  = implode(', ', $order_ids);
+$shipping = array_filter([
     get_user_meta( $current_user->ID, 'shipping_first_name', true ) . ' ' . get_user_meta( $current_user->ID, 'shipping_last_name', true ),
     get_user_meta( $current_user->ID, 'shipping_address_1', true ),
     get_user_meta( $current_user->ID, 'shipping_address_2', true ),
@@ -29,137 +27,73 @@ $shipping = array_filter( [
     get_user_meta( $current_user->ID, 'shipping_state', true ),
     get_user_meta( $current_user->ID, 'shipping_postcode', true ),
     get_user_meta( $current_user->ID, 'shipping_country', true ),
-] );
-$shipping_address = implode( ', ', $shipping );
+]);
+$shipping_address = implode(', ', $shipping);
 
-$mailto_help = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode( 'Support Request' ) . '&body=' . rawurlencode( "Order numbers: $numbers\nShipping address: $shipping_address" );
-$mailto_callback = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode( 'Call Back Request' ) . '&body=' . rawurlencode( "Please call me regarding orders: $numbers\nShipping address: $shipping_address" );
-$mailto_warranty = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode( 'Warranty Claim' ) . '&body=' . rawurlencode( "I would like to claim under warranty for orders: $numbers\nShipping address: $shipping_address" );
+$mailto_help     = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode('Support Request') . '&body=' . rawurlencode("Order numbers: $numbers\nShipping address: $shipping_address");
+$mailto_callback = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode('Call Back Request') . '&body=' . rawurlencode("Please call me regarding orders: $numbers\nShipping address: $shipping_address");
+$mailto_warranty = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode('Warranty Claim') . '&body=' . rawurlencode("I would like to claim under warranty for orders: $numbers\nShipping address: $shipping_address");
 ?>
 
-<div class="tbc-member-dashboard">
-    <header class="tbc-member-hero">
-        <h2><?php printf( esc_html__( 'Welcome back, %s!', 'woocommerce' ), esc_html( $current_user->display_name ) ); ?></h2>
-    </header>
+<script src="https://cdn.tailwindcss.com"></script>
 
-    <div class="tbc-action-buttons">
-        <a class="tbc-action-btn help" href="<?php echo esc_attr( $mailto_help ); ?>"><?php esc_html_e( 'Help', 'woocommerce' ); ?></a>
-        <a class="tbc-action-btn callback" href="<?php echo esc_attr( $mailto_callback ); ?>"><?php esc_html_e( 'Request a Call Back', 'woocommerce' ); ?></a>
-        <a class="tbc-action-btn warranty" href="<?php echo esc_attr( $mailto_warranty ); ?>"><?php esc_html_e( 'Claim Under Warranty', 'woocommerce' ); ?></a>
-        <a class="tbc-action-btn helpcentre" href="https://thetravelbuggycompany.co.uk/help-centre" target="_blank" rel="noopener"><?php esc_html_e( 'Help Centre', 'woocommerce' ); ?></a>
-        <a class="tbc-action-btn rewards" href="https://thetravelbuggycompany.co.uk/rewards" target="_blank" rel="noopener"><?php esc_html_e( 'Rewards', 'woocommerce' ); ?></a>
+<div class="tbc-dashboard bg-gray-50 font-sans">
+  <header class="bg-white shadow p-4 flex justify-between items-center">
+    <div class="flex items-center">
+      <img src="https://via.placeholder.com/40x40?text=tbco" alt="Logo" class="w-10 h-10 mr-2" />
+      <h1 class="text-xl font-semibold">My Buggy Club</h1>
     </div>
+    <div class="flex items-center">
+      <span class="mr-4 text-gray-700">
+        <?php printf( esc_html__('Hi, %s!', 'woocommerce'), '<strong>' . esc_html( $current_user->display_name ) . '</strong>' ); ?>
+      </span>
+      <div class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+        <?php esc_html_e('Member', 'woocommerce'); ?>
+      </div>
+    </div>
+  </header>
 
-    <div class="tbc-badge-section">
-        <div class="tbc-xp-bar">
-            <?php echo do_shortcode( '[wc_user_badges_xp_bar]' ); ?>
-        </div>
-        <div class="tbc-badges">
-            <?php echo do_shortcode( '[wc_user_badges]' ); ?>
-        </div>
-    </div>
+  <main class="max-w-5xl mx-auto p-6">
+    <section class="mb-8">
+      <?php echo do_shortcode('[wc_user_badges_xp_bar]'); ?>
+    </section>
 
-    <button type="button" class="tbc-toggle-links">
-        <?php esc_html_e( 'Account Shortcuts', 'woocommerce' ); ?>
-    </button>
-    <div class="tbc-links-content">
-        <a class="tbc-link" href="<?php echo esc_url( wc_get_endpoint_url( 'orders' ) ); ?>">
-            <?php esc_html_e( 'View Orders', 'woocommerce' ); ?>
-        </a>
-        <a class="tbc-link" href="<?php echo esc_url( wc_get_endpoint_url( 'edit-address' ) ); ?>">
-            <?php esc_html_e( 'Manage Addresses', 'woocommerce' ); ?>
-        </a>
-        <a class="tbc-link" href="<?php echo esc_url( wc_get_endpoint_url( 'edit-account' ) ); ?>">
-            <?php esc_html_e( 'Edit Details', 'woocommerce' ); ?>
-        </a>
-    </div>
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <a href="<?php echo esc_url( wc_get_endpoint_url('orders') ); ?>" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">🛒</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('View Orders', 'woocommerce'); ?></div>
+      </a>
+      <a href="https://thetravelbuggycompany.co.uk/rewards" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">🎁</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('Redeem Rewards', 'woocommerce'); ?></div>
+      </a>
+      <a href="<?php echo esc_attr( $mailto_help ); ?>" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">✉️</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('Submit Ticket', 'woocommerce'); ?></div>
+      </a>
+      <a href="<?php echo esc_attr( $mailto_callback ); ?>" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">📞</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('Request Callback', 'woocommerce'); ?></div>
+      </a>
+      <a href="<?php echo esc_attr( $mailto_warranty ); ?>" class="bg-white shadow rounded-lg p-4 text-center hover:bg-gray-100">
+        <div class="text-2xl mb-1">🔧</div>
+        <div class="text-gray-800 font-medium"><?php esc_html_e('Claim Warranty', 'woocommerce'); ?></div>
+      </a>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-lg font-semibold mb-4"><?php esc_html_e('Your Badges', 'woocommerce'); ?></h2>
+      <div class="flex space-x-4 overflow-x-auto pb-2">
+        <?php echo do_shortcode('[wc_user_badges]'); ?>
+      </div>
+    </section>
+  </main>
 </div>
 
 <?php
-/**
- * WooCommerce dashboard hooks.
- */
-do_action( 'woocommerce_account_dashboard' );
-do_action( 'woocommerce_before_my_account' );
-do_action( 'woocommerce_after_my_account' );
+do_action('woocommerce_account_dashboard');
+do_action('woocommerce_before_my_account');
+do_action('woocommerce_after_my_account');
 ?>
-
-<style>
-.tbc-member-dashboard {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-.tbc-member-hero {
-    text-align: center;
-    margin-bottom: 20px;
-}
-.tbc-action-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
-    justify-content: center;
-}
-.tbc-action-btn {
-    flex: 1 1 180px;
-    text-align: center;
-    padding: 15px 20px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-}
-.tbc-action-btn.help { background: #19864a; }
-.tbc-action-btn.callback { background: #0069d9; }
-.tbc-action-btn.warranty { background: #ffc107; color: #000; }
-.tbc-action-btn.helpcentre { background: #6c757d; }
-.tbc-action-btn.rewards { background: #d63384; }
-.tbc-badge-section {
-    text-align: center;
-    margin-bottom: 20px;
-}
-.tbc-xp-bar,
-.tbc-badges {
-    margin-top: 10px;
-}
-.tbc-toggle-links {
-    background: #19864a;
-    border: none;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.tbc-links-content {
-    display: none;
-    margin-top: 15px;
-}
-.tbc-links-content.open {
-    display: block;
-}
-.tbc-link {
-    display: block;
-    margin-bottom: 8px;
-    color: #19864a;
-    text-decoration: none;
-}
-.tbc-link:hover {
-    text-decoration: underline;
-}
-</style>
-<script>
-document.addEventListener('DOMContentLoaded',function(){
-    var btn=document.querySelector('.tbc-toggle-links');
-    var box=document.querySelector('.tbc-links-content');
-    if(btn&&box){
-        btn.addEventListener('click',function(){
-            box.classList.toggle('open');
-        });
-    }
-});
-</script>
 
 <!-- Omit closing PHP tag to avoid "headers already sent" issues. -->
