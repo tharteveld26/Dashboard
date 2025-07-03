@@ -99,6 +99,37 @@ if ( ! $customer_orders ) {
 .tbc-order-actions .view-btn     { background: #19864a; }
 .tbc-order-actions .feedback-btn { background: #d63384; }
 .tbc-order-actions .manual-btn   { background: #6c757d; }
+
+@media (max-width: 600px) {
+  .tbc-order-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tbc-order-body {
+    flex-direction: column;
+  }
+
+  .tbc-order-image {
+    width: 100%;
+    height: 180px;
+  }
+
+  .tbc-order-image img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .tbc-order-actions {
+    width: 100%;
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .tbc-order-actions a {
+    width: 100%;
+  }
+}
 </style>
 
 <?php foreach ( $customer_orders as $order ) :

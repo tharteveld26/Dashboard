@@ -1,76 +1,106 @@
 <?php
 /**
- * My Account Dashboard
+ * Enhanced Member Dashboard
  *
- * Shows the first intro screen on the account dashboard.
+ * Custom account dashboard with badge rewards.
  *
- * This template can be overridden by copying it to yourtheme/woocommerce/myaccount/dashboard.php.
- *
- * HOWEVER, on occasion WooCommerce will need to update template files and you
- * (the theme developer) will need to copy the new files to your theme to
- * maintain compatibility. We try to do this as little as possible, but it does
- * happen. When this occurs the version of the template file will be bumped and
- * the readme will list any important changes.
- *
- * @see     https://woocommerce.com/document/template-structure/
- * @package WooCommerce\Templates
- * @version 4.4.0
+ * Template overrides WooCommerce myaccount/dashboard.php.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+    exit;
 }
 
-$allowed_html = array(
-	'a' => array(
-		'href' => array(),
-	),
-);
+$current_user = wp_get_current_user();
+$allowed_html = array( 'a' => array( 'href' => array() ) );
 ?>
 
-<p>Welcome to the Buggy Club Dashboard, <?php echo esc_html( $current_user->display_name ); ?>!</p>
+<div class="tbc-member-dashboard">
+    <header class="tbc-member-hero">
+        <h2><?php printf( esc_html__( 'Welcome back, %s!', 'woocommerce' ), esc_html( $current_user->display_name ) ); ?></h2>
+        <div class="tbc-xp-bar">
+            <?php echo do_shortcode( '[wc_user_badges_xp_bar]' ); ?>
+        </div>
+        <div class="tbc-badges">
+            <?php echo do_shortcode( '[wc_user_badges]' ); ?>
+        </div>
+    </header>
 
+    <button type="button" class="tbc-toggle-links">
+        <?php esc_html_e( 'Account Shortcuts', 'woocommerce' ); ?>
+    </button>
+    <div class="tbc-links-content">
+        <a class="tbc-link" href="<?php echo esc_url( wc_get_endpoint_url( 'orders' ) ); ?>">
+            <?php esc_html_e( 'View Orders', 'woocommerce' ); ?>
+        </a>
+        <a class="tbc-link" href="<?php echo esc_url( wc_get_endpoint_url( 'edit-address' ) ); ?>">
+            <?php esc_html_e( 'Manage Addresses', 'woocommerce' ); ?>
+        </a>
+        <a class="tbc-link" href="<?php echo esc_url( wc_get_endpoint_url( 'edit-account' ) ); ?>">
+            <?php esc_html_e( 'Edit Details', 'woocommerce' ); ?>
+        </a>
+    </div>
+</div>
 
-<p>
-	<?php
-	/* translators: 1: Orders URL 2: Address URL 3: Account URL. */
-	$dashboard_desc = __( 'From your account dashboard you can view your <a href="%1$s">recent orders</a>, manage your <a href="%2$s">billing address</a>, and <a href="%3$s">edit your password and account details</a>.', 'woocommerce' );
-	if ( wc_shipping_enabled() ) {
-		/* translators: 1: Orders URL 2: Addresses URL 3: Account URL. */
-		$dashboard_desc = __( 'From your account dashboard you can view your <a href="%1$s">recent orders</a>, manage your <a href="%2$s">shipping and billing addresses</a>, and <a href="%3$s">edit your password and account details</a>.', 'woocommerce' );
-	}
-	printf(
-		wp_kses( $dashboard_desc, $allowed_html ),
-		esc_url( wc_get_endpoint_url( 'orders' ) ),
-		esc_url( wc_get_endpoint_url( 'edit-address' ) ),
-		esc_url( wc_get_endpoint_url( 'edit-account' ) )
-	);
-	?>
-</p>
-    <?php do_action('tbc_render_dashboard_badges'); ?>
 <?php
-	/**
-	 * My Account dashboard.
-	 *
-	 * @since 2.6.0
-	 */
-	do_action( 'woocommerce_account_dashboard' );
+/**
+ * WooCommerce dashboard hooks.
+ */
+do_action( 'woocommerce_account_dashboard' );
+do_action( 'woocommerce_before_my_account' );
+do_action( 'woocommerce_after_my_account' );
+?>
 
-	/**
-	 * Deprecated woocommerce_before_my_account action.
-	 *
-	 * @deprecated 2.6.0
-	 */
-	do_action( 'woocommerce_before_my_account' );
+<style>
+.tbc-member-dashboard {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.tbc-member-hero {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.tbc-xp-bar,
+.tbc-badges {
+    margin-top: 10px;
+}
+.tbc-toggle-links {
+    background: #19864a;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.tbc-links-content {
+    display: none;
+    margin-top: 15px;
+}
+.tbc-links-content.open {
+    display: block;
+}
+.tbc-link {
+    display: block;
+    margin-bottom: 8px;
+    color: #19864a;
+    text-decoration: none;
+}
+.tbc-link:hover {
+    text-decoration: underline;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+    var btn=document.querySelector('.tbc-toggle-links');
+    var box=document.querySelector('.tbc-links-content');
+    if(btn&&box){
+        btn.addEventListener('click',function(){
+            box.classList.toggle('open');
+        });
+    }
+});
+</script>
 
-	/**
-	 * Deprecated woocommerce_after_my_account action.
-	 *
-	 * @deprecated 2.6.0
-	 */
-	do_action( 'woocommerce_after_my_account' );
-    
-
-
-
-/* Omit closing PHP tag at the end of PHP files to avoid "headers already sent" issues. */
+<!-- Omit closing PHP tag to avoid "headers already sent" issues. -->
