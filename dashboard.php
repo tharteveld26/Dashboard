@@ -30,6 +30,11 @@ $shipping = array_filter([
 ]);
 $shipping_address = implode(', ', $shipping);
 
+$recent_posts = wp_get_recent_posts([
+    'numberposts' => 3,
+    'post_status' => 'publish',
+]);
+
 $mailto_help     = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode('Support Request') . '&body=' . rawurlencode("Order numbers: $numbers\nShipping address: $shipping_address");
 $mailto_callback = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode('Call Back Request') . '&body=' . rawurlencode("Please call me regarding orders: $numbers\nShipping address: $shipping_address");
 $mailto_warranty = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurlencode('Warranty Claim') . '&body=' . rawurlencode("I would like to claim under warranty for orders: $numbers\nShipping address: $shipping_address");
@@ -87,6 +92,20 @@ $mailto_warranty = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurle
         <?php echo do_shortcode('[wc_user_badges]'); ?>
       </div>
     </section>
+
+    <?php if ( $recent_posts ) : ?>
+    <section class="mb-8">
+      <h2 class="text-lg font-semibold mb-4"><?php esc_html_e('Latest from our Blog', 'woocommerce'); ?></h2>
+      <ul class="space-y-4">
+        <?php foreach ( $recent_posts as $post ) : ?>
+          <li class="bg-white shadow rounded-lg p-4">
+            <a href="<?php echo esc_url( get_permalink( $post['ID'] ) ); ?>" class="text-blue-600 font-medium hover:underline"><?php echo esc_html( $post['post_title'] ); ?></a>
+            <p class="text-gray-600 text-sm mt-1"><?php echo esc_html( wp_trim_words( wp_strip_all_tags( $post['post_content'] ), 20, '...' ) ); ?></p>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </section>
+    <?php endif; ?>
   </main>
 </div>
 
@@ -94,6 +113,4 @@ $mailto_warranty = 'mailto:hello@thetravelbuggycompany.co.uk?subject=' . rawurle
 do_action('woocommerce_account_dashboard');
 do_action('woocommerce_before_my_account');
 do_action('woocommerce_after_my_account');
-?>
-
-<!-- Omit closing PHP tag to avoid "headers already sent" issues. -->
+// Omit closing PHP tag to avoid "headers already sent" issues.
